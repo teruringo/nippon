@@ -3,7 +3,7 @@
     <div>
       <h3>日本代表の試合</h3>
       <% if @games.any? %>
-        <ol>
+        <ol class="game_list">
           <%= render @games %>
         </ol>
         <%= will_paginate @games %>

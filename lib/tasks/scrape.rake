@@ -17,17 +17,20 @@ namespace :scrape do
       elements = Hash.new( {} ) # 多重ハッシュ用の初期化
       insert = Hash.new( {} ) # 多重ハッシュ用の初期化
       
-      @page.search('table.results td.date').count.times do
+      @page.search('table.results td.date').count.times do |i|
         # データ取得
-        elements[:date] = @page.at('table.results tr + tr td.date').inner_text
-        elements[:opponent] = @page.at('table.results tr + tr td.opp a').inner_text
-        elements[:ha] = @page.at('table.results tr + tr td.ha').inner_text
-        elements[:score] = @page.at('table.results tr + tr td.score').inner_text
-        elements[:venue] = @page.at('table.results tr + tr td.venue').inner_text
-        elements[:tournament] = @page.at('table.results tr + tr td.comp').inner_text
+        elements[:date] =       @page.search('table.results td.date'  )[i].inner_text
+        elements[:opponent] =   @page.search('table.results td.opp a' )[i].inner_text
+        elements[:ha] =         @page.search('table.results td.ha'    )[i].inner_text
+        elements[:score] =      @page.search('table.results td.score' )[i].inner_text
+        elements[:venue] =      @page.search('table.results td.venue' )[i].inner_text
+        elements[:tournament] = @page.search('table.results td.comp'  )[i].inner_text
         
-        p elements
+        elements[:opponent] = "日本"
+        insert[:"#{elements[:date]}"] = elements
+        
       end
+      p insert
 
       # # DB追加用データ成形
       # elements[:date].count.times do |m|

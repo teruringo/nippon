@@ -15,40 +15,64 @@ namespace :scrape do
       next unless page.search('title').inner_text.include?("サッカー日本代表データベース")
       
       elements = Hash.new( {} ) # 多重ハッシュ用の初期化
-      # elements[:title] = page.search('title').inner_text
+      insert = Hash.new( {} ) # 多重ハッシュ用の初期化
+      
+      # データ取得
       elements[:date] = page.search('table.results tr + tr td.date')
-      elements[:opponent] = page.search('table.results tr + tr td.opp')
+      elements[:opponent] = page.search('table.results tr + tr td.opp a')
       elements[:ha] = page.search('table.results tr + tr td.ha')
       elements[:score] = page.search('table.results tr + tr td.score')
       elements[:venue] = page.search('table.results tr + tr td.venue')
       elements[:tournament] = page.search('table.results tr + tr td.comp')
       
-      p elements[:date]
-      p elements[:date].inner_text
-      p elements[:date][0]
-      p elements[:date][1]
-      p elements[:date][0].inner_text
       
-      p elements[:test] = page.search('table.results td.date')
-      
+      # DB追加用データ成形
       elements[:date].count.times do |m|
-        # ホームアンドアウェー
-        if elements[:ha][m] == "H"
-          elements[:away_team][m] = elements[:opponent][m]
-          elements[:home_team][m] = "日本代表"
-        else
-          elements[:home_team][m] = elements[:opponent][m]
-          elements[:away_team][m] = "日本代表"
+        # 日付
+        insert[:date][m] = elements[:date][m].inner_text.split("-")
+        insert[:date][m].each do |i|
+          insert[:date][m][i].to_i(10)
         end
-        p "2行目"+elements[:ha][m]
-        p elements[m]
-        p "home_team→" + elements[:home_team][m]
-        p "away_team→" + elements[:away_team][m]
-        p "ha→" + elements[:ha][m]
-        p "opponent→" + elements[:opponent][m]
-        # Game.create!()
-        #2変数を順番に指定
-        # puts elements[:date][m].inner_text + elements[:opponent][m].inner_text
+        p insert[:date][m]
+        # p insert[:date][m]
+        # ホームアンドアウェー
+        if elements[:ha][m].inner_text == "H"
+          insert[:home_team][m] = "日本"
+          insert[:away_team][m] = elements[:opponent][m].inner_text
+          p elements[:ha][m].inner_text
+          p elements[:opponent][m].inner_text
+          p insert[:home_team][m]
+          p insert[:away_team][m]
+        elsif elements[:ha][m].inner_text == "A"
+          insert[:home_team][m] = elements[:opponent][m].inner_text
+          insert[:away_team][m] = "日本"
+          p elements[:ha][m].inner_text
+          p elements[:opponent][m].inner_text
+          p insert[:home_team][m]
+          p insert[:away_team][m]
+        elsif elements[:ha][m].inner_text == "N"
+          insert[:home_team][m] = "日本"
+          insert[:away_team][m] = elements[:opponent][m].inner_text
+          p elements[:ha][m].inner_text
+          p elements[:opponent][m].inner_text
+          p insert[:home_team][m]
+          p insert[:away_team][m]
+        end
+        # p elements[:ha][m].inner_text
+        # p "home_team→" + insert[:home_team][m]
+        # p "away_team→" + insert[:away_team][m]
+        # p elements[:opponent][m].inner_text
+        # スコア
+        insert[:home_gf] = elements[:score][m].inner_text.split(" - ")[0]
+        insert[:away_gf] = elements[:score][m].inner_text.split(" - ")[1]
+        # # p elements[:score][m]
+        # p insert[:away_gf] = elements[:score][m][1]
+        
+      #   p "ha→" + elements[:ha][m]
+      #   p "opponent→" + elements[:opponent][m]
+      #   Game.create!()
+      #   2変数を順番に指定
+      #   puts elements[:date][m].inner_text + elements[:opponent][m].inner_text
       end
     end
   end

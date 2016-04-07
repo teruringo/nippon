@@ -33,46 +33,9 @@ namespace :scrape do
         elements.each do |key, val|
           insert["#{date}"][key] = val
         end
-
       end
       
 
-      # # DB追加用データ成形
-      # elements[:date].count.times do |m|
-      #   # 日付
-      #   insert[:date][m] = elements[:date][m].inner_text.split("-")
-      #   insert[:date][m].each do |i|
-      #     insert[:date][m][i].to_i(10)
-      #   end
-      #   p insert[:date][m]
-      #   # p insert[:date][m]
-      #   # ホームアンドアウェー
-      #   if elements[:ha][m].inner_text == "H"
-      #     insert[:home_team][m] = "日本"
-      #     insert[:away_team][m] = elements[:opponent][m].inner_text
-      #     p elements[:ha][m].inner_text
-      #     p elements[:opponent][m].inner_text
-      #     p insert[:home_team][m]
-      #     p insert[:away_team][m]
-      #   elsif elements[:ha][m].inner_text == "A"
-      #     insert[:home_team][m] = elements[:opponent][m].inner_text
-      #     insert[:away_team][m] = "日本"
-      #     p elements[:ha][m].inner_text
-      #     p elements[:opponent][m].inner_text
-      #     p insert[:home_team][m]
-      #     p insert[:away_team][m]
-      #   elsif elements[:ha][m].inner_text == "N"
-      #     insert[:home_team][m] = "日本"
-      #     insert[:away_team][m] = elements[:opponent][m].inner_text
-      #     p elements[:ha][m].inner_text
-      #     p elements[:opponent][m].inner_text
-      #     p insert[:home_team][m]
-      #     p insert[:away_team][m]
-      #   end
-      #   # p elements[:ha][m].inner_text
-      #   # p "home_team→" + insert[:home_team][m]
-      #   # p "away_team→" + insert[:away_team][m]
-      #   # p elements[:opponent][m].inner_text
       #   # スコア
       #   insert[:home_gf] = elements[:score][m].inner_text.split(" - ")[0]
       #   insert[:away_gf] = elements[:score][m].inner_text.split(" - ")[1]
@@ -86,6 +49,30 @@ namespace :scrape do
       # #   puts elements[:date][m].inner_text + elements[:opponent][m].inner_text
       # end
     end
-    p insert
+    # DB追加用データ成形
+    insert.each do |date,data|
+      # 日付
+      
+      # data[:date] = Date.new(data[:date].split("-").map(&:to_i))
+      data[:date] = Date.parse( data[:date] )
+      
+      # チーム、得点
+      data[:score] = data[:score].split(" - ").map(&:to_i)
+      if data[:ha] == ( "H" || "N" )
+        data[:home_team] = "日本"
+        data[:away_team] = data[:opponent]
+        data[:home_gf] = data[:score][0]
+        data[:away_gf] = data[:score][1]
+      else
+        data[:home_team] = data[:opponent]
+        data[:away_team] = "日本"
+        data[:home_gf] = data[:score][1]
+        data[:away_gf] = data[:score][0]
+      end
+      data.delete(:opponent)
+      data.delete(:ha)
+      data.delete(:score)
+      Game.create!( data )
+    end
   end
 end

@@ -7,6 +7,10 @@ namespace :scrape do
     
     agent = Mechanize.new
     
+    # elements = Hash.new
+    elements = Hash.new( {} ) # 多重ハッシュ用の初期化
+    insert = Hash.new( {} ) # 多重ハッシュ用の初期化
+    
     #繰り返しで変数に入れる処理
     for n in 1964..1965 do
     # for n in 1923..1925 do # 1923～1925年のページ
@@ -14,11 +18,11 @@ namespace :scrape do
       
       next unless @page.search('title').inner_text.include?("サッカー日本代表データベース")
       
-      elements = Hash.new( {} ) # 多重ハッシュ用の初期化
-      insert = Hash.new( {} ) # 多重ハッシュ用の初期化
       
       @page.search('table.results td.date').count.times do |i|
         # データ取得
+        date = @page.search('table.results td.date'  )[i].inner_text
+        insert["#{date}"] = Hash.new();
         elements[:date] =       @page.search('table.results td.date'  )[i].inner_text
         elements[:opponent] =   @page.search('table.results td.opp a' )[i].inner_text
         elements[:ha] =         @page.search('table.results td.ha'    )[i].inner_text
@@ -26,11 +30,12 @@ namespace :scrape do
         elements[:venue] =      @page.search('table.results td.venue' )[i].inner_text
         elements[:tournament] = @page.search('table.results td.comp'  )[i].inner_text
         
-        elements[:opponent] = "日本"
-        insert[:"#{elements[:date]}"] = elements
-        
+        elements.each do |key, val|
+          insert["#{date}"][key] = val
+        end
+
       end
-      p insert
+      
 
       # # DB追加用データ成形
       # elements[:date].count.times do |m|
@@ -81,5 +86,6 @@ namespace :scrape do
       # #   puts elements[:date][m].inner_text + elements[:opponent][m].inner_text
       # end
     end
+    p insert
   end
 end

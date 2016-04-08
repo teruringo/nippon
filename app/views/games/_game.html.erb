@@ -1,9 +1,12 @@
     <li>
-      <%= game.date %>
-      <%= game.home_team %>
-      <%= game.home_gf %> - 
-      <%= game.away_gf %>
-      <%= game.away_team %>
-      @<%= game.venue %>
-      (<%= game.tournament %>)
+      <%= link_to (game) do %>
+        <span class='date'><%= game.date %></span> <span class='tournament'>: <%= game.tournament %></span>
+        <span class='content'>
+          <%= game.home_team %>
+          <%= game.home_gf %> - 
+          <%= game.away_gf %>
+          <%= game.away_team %>
+          (<%= game.venue %>)
+        </span>
+      <% end %>
     </li>

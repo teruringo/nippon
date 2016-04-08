@@ -43,3 +43,23 @@ header{
 		// color: #000;
 	}
 }
+
+/* games_list */
+
+.game_list{
+	list-style: none;
+	padding: 0;
+	li{
+		padding: 10px 0;
+		border-top: 1px solid #e8e8e8;
+	}
+	.date{
+		color: $gray-light;
+	}
+	.tournament{
+		color: $gray-light;
+	}
+	.content{
+		display: block;
+	}
+}

@@ -12,7 +12,7 @@ namespace :scrape do
     insert = Hash.new( {} ) # 多重ハッシュ用の初期化
     
     #繰り返しで変数に入れる処理
-    for n in 1964..1965 do
+    for n in 1923..2016 do
     # for n in 1923..1925 do # 1923～1925年のページ
       @page = agent.get("http://www.japannationalfootballteam.com/#{n}")
       
@@ -73,8 +73,7 @@ namespace :scrape do
       data.delete(:ha)
       data.delete(:score)
       
-      # Game.create!( data )
-      p Game.find_by( date: data[:date])
+      Game.create!( data ) unless Game.find_by( date: data[:date])
       
     end
   end

@@ -72,7 +72,10 @@ namespace :scrape do
       data.delete(:opponent)
       data.delete(:ha)
       data.delete(:score)
-      Game.create!( data )
+      
+      # Game.create!( data )
+      p Game.find_by( date: data[:date])
+      
     end
   end
 end

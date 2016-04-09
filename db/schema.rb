@@ -11,22 +11,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160408032622) do
+ActiveRecord::Schema.define(version: 20160408135535) do
 
   create_table "games", force: :cascade do |t|
     t.date     "date"
-    t.text     "home_team"
-    t.text     "away_team"
+    t.string   "home_team"
+    t.string   "away_team"
     t.integer  "home_gf"
     t.integer  "away_gf"
-    t.text     "venue"
-    t.text     "tournament"
-    t.text     "lineup"
-    t.text     "scorer"
+    t.string   "venue"
+    t.string   "tournament"
+    t.string   "lineup"
+    t.string   "scorer"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   add_index "games", ["date"], name: "index_games_on_date", unique: true
+
+  create_table "players", force: :cascade do |t|
+    t.string   "name"
+    t.date     "birth"
+    t.integer  "height"
+    t.integer  "weight"
+    t.string   "birth_p"
+    t.string   "web_site"
+    t.string   "twitter"
+    t.string   "facebook"
+    t.string   "belongs"
+    t.integer  "back_no"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
 end

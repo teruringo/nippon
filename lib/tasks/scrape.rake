@@ -130,19 +130,13 @@ namespace :scrape do
     # ページ表示
     name_ini.each do |n|
       page = agent.get("http://www.japannationalfootballteam.com/players_#{n}")
-      # p page.search('td.player')[1].inner_text # ここまでOK
-      # page.search('td.player')[1].click # searchのあとにclickは不可能
-      # page = page.link_with(:text => '青木　剛').click # これもOK
+
       href_str = page.search('//td[@class="player"]/a/@href')[0].text
       agent.page.link_with(:href => href_str).click
-      # agent.page.search('td.player').link.click
       p agent.page.search('div.profile_l').search('table.profile td')[0].text
-      # p page.search('table.caption2')[0]
 
       # # 選手リンクをクリック＆取得
       # @page.search('table.players td.player').first(3).each do |i|
-      #   @page.links_with(:dom_class => "player")[i].click
-      #   # @page.search('table.players td.player').links[i].click
 
       #   # ページ内のデータを指定、ハッシュに入れる
       #   # caption2が最初に出てくるところの次のテーブルの中のtd

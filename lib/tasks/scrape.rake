@@ -130,21 +130,33 @@ namespace :scrape do
     # ページ表示
     name_ini.each do |n|
       page = agent.get("http://www.japannationalfootballteam.com/players_#{n}")
+      # 繰り返し
+      page.search('table.players td.player').first(3).count.times do |i|
+        # 選手リンクをクリック
+        href_str = page.search('//td[@class="player"]/a/@href')[i].text
+        agent.page.link_with(:href => href_str).click
 
-      href_str = page.search('//td[@class="player"]/a/@href')[0].text
-      agent.page.link_with(:href => href_str).click
-      p agent.page.search('div.profile_l').search('table.profile td')[0].text
+        # ページ内のデータを指定、ハッシュに入れる
+        p agent.page.search('div.profile_l').search('table.profile td')[0].text
+        # 選手名
+        # 誕生日
+        # 身長
+        # 体重
+        # 出身
+        # サイト
+        # Twitter
+        # FB
 
-      # # 選手リンクをクリック＆取得
-      # @page.search('table.players td.player').first(3).each do |i|
-
-      #   # ページ内のデータを指定、ハッシュに入れる
-      #   # caption2が最初に出てくるところの次のテーブルの中のtd
-      #   p @page.at_css('table.caption2').at_css('td.plofile').inner_text
         
-      #   # データを成形する
-      #   # データをDBにcreateする
-      # end
+
+        # p @page.at_css('table.caption2').at_css('td.plofile').inner_text
+        
+        # データを成形する
+        # データをDBにcreateする
+        
+        # 戻る
+        agent.back
+      end
     end
       
 

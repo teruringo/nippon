@@ -131,13 +131,18 @@ namespace :scrape do
     name_ini.each do |n|
       page = agent.get("http://www.japannationalfootballteam.com/players_#{n}")
       # 繰り返し
-      page.search('table.players td.player').first(3).count.times do |i|
+      page.search('table.players td.player').first(1).count.times do |i|
         # 選手リンクをクリック
         href_str = page.search('//td[@class="player"]/a/@href')[i].text
         agent.page.link_with(:href => href_str).click
 
         # ページ内のデータを指定、ハッシュに入れる
+        name =  agent.page.search('h1.headline').text
+        p name.split(/（|）/)
         p agent.page.search('div.profile_l').search('table.profile td')[0].text
+        p agent.page.search('div.profile_l').search('table.profile td')[1].text
+        p agent.page.search('table.profile')[1].text
+        # p agent.page.search('div.profile_l').search('table.profile')[1].search('td')[1].text
         # 選手名
         # 誕生日
         # 身長

@@ -1,5 +1,6 @@
 require 'open-uri'
 require 'mechanize'
+require 'logger'
 
 namespace :scrape do
   desc '日本代表の試合を日本代表DBから取得'
@@ -123,42 +124,49 @@ namespace :scrape do
   desc '日本代表の選手を取得'
   task :scrape_players => :environment do
     agent = Mechanize.new
+    agent.user_agent_alias = 'Windows IE 9'
+    agent.log = Logger.new $stderr
+    agent.log.level = Logger::INFO
+    
     elements = Hash.new( {} ) # 多重ハッシュ用の初期化
     insert = Hash.new( {} ) # 多重ハッシュ用の初期化
-    # name_ini = [ "a", "ka", "sa", "ta", "na", "ha", "ma", "ya", "ra", "wa", "unknown" ]
-    name_ini = [ "a" ] # テスト用
+    name_ini = [ "a", "ka", "sa", "ta", "na", "ha", "ma", "ya", "ra", "wa", "unknown" ]
+    # name_ini = [ "a" ] # テスト用
     # ページ表示
+    # page = agent.get("http://www.japannationalfootballteam.com/players_na/shoichi_nishimura.html")  # テスト用
     name_ini.each do |n|
       page = agent.get("http://www.japannationalfootballteam.com/players_#{n}")
+
       # 繰り返し
-      page.search('table.players td.player').first(1).count.times do |i|
+      page.search('table.players td.player').count.times do |i|
+      # page.search('table.players td.player').first(1).count.times do |i| # テスト用
+
         # 選手リンクをクリック
         href_str = page.search('//td[@class="player"]/a/@href')[i].text
         agent.page.link_with(:href => href_str).click
 
-        # ページ内のデータを指定、ハッシュに入れる
-        name =  agent.page.search('h1.headline').text
-        p name.split(/（|）/)
-        p agent.page.search('div.profile_l').search('table.profile td')[0].text
-        p agent.page.search('div.profile_l').search('table.profile td')[1].text
-        p agent.page.search('table.profile')[1].text
-        # p agent.page.search('div.profile_l').search('table.profile')[1].search('td')[1].text
+        # ページ内のデータを指定、ハッシュに入れる・データを成形する
+        
         # 選手名
-        # 誕生日
-        # 身長
-        # 体重
-        # 出身
-        # サイト
-        # Twitter
-        # FB
-
+        name =  agent.page.search('h1.headline').text
+        name = name.split(/（|）/)
+        insert[:name]     = name[0].strip!
+        insert[:phonetic] = name[1]
         
-
-        # p @page.at_css('table.caption2').at_css('td.plofile').inner_text
+        # 誕生日、出身地
+        insert[:birth_day]   = agent.page.search('div.profile_l').search('table.profile td')[0].text.gsub( /年|月/, "-" ).delete("日")
+        insert[:birth_day].match(/\d\d\d\d-\d\d-\d\d/) ? insert[:birth_day] = Date.parse( insert[:birth_day] ) : insert[:birth_day] = nil
+        insert[:birth_place] = agent.page.search('div.profile_l').search('table.profile td')[1].text
         
-        # データを成形する
+        # 身長、体重
+        insert[:height] = agent.page.search('table.profile')[1].search('td')[1].text
+        insert[:weight] = agent.page.search('table.profile')[1].search('td')[0].text
+
+        # サイト Twitter FBはまた別に取得する。
+        
         # データをDBにcreateする
-        
+        Player.create!( insert ) unless Player.find_by( name: insert[:name])
+
         # 戻る
         agent.back
       end
@@ -173,4 +181,3 @@ namespace :scrape do
     # http://www.japannationalfootballteam.com/players_a/index.html
   end
 end
-
